@@ -44,7 +44,9 @@ class TurnstileHardware:
             )
 
     def get_entries(self, timestamp, time_step):
-        """Returns the number of turnstile entries for the given timeframe"""
+        """
+        Returns the number of turnstile entries for the given timeframe
+        """
         hour_curve = TurnstileHardware.curve_df[
             TurnstileHardware.curve_df["hour"] == timestamp.hour
         ]
@@ -62,5 +64,6 @@ class TurnstileHardware:
 
         # Calculate approximation of number of entries for this simulation step
         num_entries = int(math.floor(num_riders * ratio / total_steps))
+        
         # Introduce some randomness in the data
         return max(num_entries + random.choice(range(-5, 5)), 0)
