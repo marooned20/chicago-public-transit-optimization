@@ -7,7 +7,7 @@
 # * Kafka Connect
 #
 
-version: '2.2'
+version: "2.2"
 
 services:
   zookeeper:
@@ -138,3 +138,25 @@ services:
     volumes:
       - ./producers/data/cta_stations.csv:/tmp/cta_stations.csv
       - ./load_stations.sql:/docker-entrypoint-initdb.d/load_stations.sql
+
+  kafkahq:
+    image: tchiotludo/kafkahq
+    hostname: kafkahq
+    container_name: kafkahq
+    depends_on:
+      - kafka0
+      - schema-registry
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      PROXY: "true"
+      KAFKAHQ_URL: "http://kafkahq:8080"
+      KAFKAHQ_CONFIGURATION: |
+        kafkahq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka0:19092"
+              schema-registry:
+                url: "http://schema-registry:8081"
