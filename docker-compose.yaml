@@ -140,6 +140,7 @@ services:
       - ./load_stations.sql:/docker-entrypoint-initdb.d/load_stations.sql
 
   kafkahq:
+    # https://github.com/thatcampbellkid/SAIK2/blob/9bb270447e43ddf483d4bd181102d8853cb760a1/confluent/docker-compose.yml
     image: tchiotludo/kafkahq
     hostname: kafkahq
     container_name: kafkahq
