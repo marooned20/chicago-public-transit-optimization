@@ -2,7 +2,6 @@
 import logging
 import time
 
-
 from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer
@@ -62,18 +61,19 @@ class Producer:
         is_topic = self.topic_exists(client, self.topic_name)
 
         if is_topic:
-            logger.info(f"topic {self.topic_name} exists. Skipping creation...")
-            return 
+            logger.info(
+                f"topic {self.topic_name} exists. Skipping creation...")
+            return
         else:
             logger.info(f"creating topic: {self.topic_name}")
 
             futures = client.create_topics(
-            [
-                NewTopic(
-                topic=self.topic_name,
-                    num_partitions=self.num_partitions,
-                    replication_factor=self.num_replicas,
-                    # NOTE: config parameters can be added here. e.g. compression type etc
+                [
+                    NewTopic(
+                        topic=self.topic_name,
+                        num_partitions=self.num_partitions,
+                        replication_factor=self.num_replicas,
+                        # NOTE: config parameters can be added here. e.g. compression type etc
                     )
                 ]
             )
@@ -85,7 +85,7 @@ class Producer:
                 except Exception as error:
                     print(f"failed to create topic {self.topic_name}: {error}")
                     raise
-            
+
     def topic_exists(self, client, topic_name):
         """
         Checks if the given topic exists
@@ -99,7 +99,7 @@ class Producer:
         """
         Prepares the producer for exit by cleaning up the producer
         """
-        
+
         if self.producer is None:
             logger.debug(f"producer is None, no need to flush")
             return
