@@ -15,20 +15,17 @@ SCHEMA_REGISTRY_URL = "http://schema-registry:8081/"
 
 
 class Producer:
-    """Defines and provides common functionality amongst Producers"""
+    """
+    Defines and provides common functionality amongst Producers
+    """
 
     # Tracks existing topics across all Producer instances
     existing_topics = set([])
 
-    def __init__(
-        self,
-        topic_name,
-        key_schema,
-        value_schema=None,
-        num_partitions=1,
-        num_replicas=1,
-    ):
-        """Initializes a Producer object with basic settings"""
+    def __init__(self, topic_name, key_schema, value_schema=None, num_partitions=1, num_replicas=1):
+        """
+        Initializes a Producer object with basic settings
+        """
         self.topic_name = topic_name
         self.key_schema = key_schema
         self.value_schema = value_schema
@@ -56,8 +53,9 @@ class Producer:
         )
 
     def create_topic(self):
-        """Creates the producer topic if it does not already exist"""
-        
+        """
+        Creates the producer topic if it does not already exist
+        """
         # define client
         client = AdminClient({"bootstrap.servers": BOOTSTRAP_SERVERS})
 
@@ -89,14 +87,18 @@ class Producer:
                     raise
             
     def topic_exists(self, client, topic_name):
-        """Checks if the given topic exists"""
+        """
+        Checks if the given topic exists
+        """
 
         topic_metadata = client.list_topics(timeout=30)
 
         return topic_metadata.topics.get(topic_name) is not None
 
     def close(self):
-        """Prepares the producer for exit by cleaning up the producer"""
+        """
+        Prepares the producer for exit by cleaning up the producer
+        """
         
         if self.producer is None:
             logger.debug(f"producer is None, no need to flush")
@@ -106,5 +108,7 @@ class Producer:
         self.producer.flush()
 
     def time_millis(self):
-        """Use this function to get the key for Kafka Events"""
+        """
+        Use this function to get the key for Kafka Events
+        """
         return int(round(time.time() * 1000))
