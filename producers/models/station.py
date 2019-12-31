@@ -40,7 +40,7 @@ class Station(Producer):
         )
 
         self.station_id = int(station_id)
-        self.color = color  # same as line?
+        self.color = color  # same as line! SEE: line.py
         self.dir_a = direction_a
         self.dir_b = direction_b
         self.a_train = None
@@ -51,8 +51,9 @@ class Station(Producer):
         """
         Simulates train arrivals at this station
         """
-
-        logger.info("arrival kafka integration incomplete - skipping")
+        # TODO: change logging level later
+        logger.info(f"producing to {self.topic_name}")
+        
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
@@ -60,7 +61,7 @@ class Station(Producer):
                 "station_id": self.station_id,
                 "train_id": train.train_id,
                 "direction": direction,
-                "line": self.color,
+                "line": self.color.name,
                 "train_status": train.status,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction
