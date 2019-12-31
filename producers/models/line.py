@@ -3,7 +3,8 @@ import collections
 import logging
 from enum import IntEnum
 
-from models import Station, Train
+from .station import Station 
+from .train import Train
 
 logger = logging.getLogger(__name__)
 
