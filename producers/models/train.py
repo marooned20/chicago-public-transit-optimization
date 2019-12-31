@@ -7,9 +7,12 @@ logger = logging.getLogger(__name__)
 
 
 class Train:
-    """Defines CTA Train Model"""
+    """
+    Defines CTA Train Model
+    """
 
-    status = IntEnum("status", "out_of_service in_service broken_down", start=0)
+    status = IntEnum(
+        "status", "out_of_service in_service broken_down", start=0)
 
     def __init__(self, train_id, status):
         self.train_id = train_id
@@ -23,5 +26,7 @@ class Train:
     def __repr__(self):
         return str(self)
 
+    # NOTE: I don't like broken as method name
+    # TODO: Change mehtod name to disruption or something more realistic
     def broken(self):
         return self.status == Train.status.broken_down

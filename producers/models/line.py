@@ -1,16 +1,17 @@
 """Defines functionality relating to train lines"""
 import collections
-from enum import IntEnum
 import logging
+from enum import IntEnum
 
 from models import Station, Train
-
 
 logger = logging.getLogger(__name__)
 
 
 class Line:
-    """Contains Chicago Transit Authority (CTA) Elevated Loop Train ("L") Station Data"""
+    """
+    Contains Chicago Transit Authority (CTA) Elevated Loop Train ("L") Station Data
+    """
 
     colors = IntEnum("colors", "blue green red", start=0)
     num_directions = 2
@@ -24,12 +25,15 @@ class Line:
         self.trains = self._build_trains()
 
     def _build_line_data(self, station_df):
-        """Constructs all stations on the line"""
+        """
+        Constructs all stations on the line
+        """
         stations = station_df["station_name"].unique()
 
         station_data = station_df[station_df["station_name"] == stations[0]]
         line = [
-            Station(station_data["station_id"].unique()[0], stations[0], self.color)
+            Station(station_data["station_id"].unique()
+                    [0], stations[0], self.color)
         ]
         prev_station = line[0]
         for station in stations[1:]:
@@ -46,7 +50,9 @@ class Line:
         return line
 
     def _build_trains(self):
-        """Constructs and assigns train objects to stations"""
+        """
+        Constructs and assigns train objects to stations
+        """
         trains = []
         curr_loc = 0
         b_dir = True
@@ -66,20 +72,29 @@ class Line:
         return trains
 
     def run(self, timestamp, time_step):
-        """Advances trains between stations in the simulation. Runs turnstiles."""
+        """
+        Advances trains between stations in the simulation. Runs turnstiles.
+        """
         self._advance_turnstiles(timestamp, time_step)
         self._advance_trains()
 
     def close(self):
-        """Called to stop the simulation"""
+        """
+        Called to stop the simulation
+        """
         _ = [station.close() for station in self.stations]
 
     def _advance_turnstiles(self, timestamp, time_step):
-        """Advances the turnstiles in the simulation"""
-        _ = [station.turnstile.run(timestamp, time_step) for station in self.stations]
+        """
+        Advances the turnstiles in the simulation
+        """
+        _ = [station.turnstile.run(timestamp, time_step)
+             for station in self.stations]
 
     def _advance_trains(self):
-        """Advances trains between stations in the simulation"""
+        """
+        Advances trains between stations in the simulation
+        """
         # Find the first b train
         curr_train, curr_index, b_direction = self._next_train()
         self.stations[curr_index].b_train = None
@@ -100,9 +115,11 @@ class Line:
                 curr_index, b_direction, step_size=1
             )
             if b_direction is True:
-                self.stations[curr_index].arrive_b(curr_train, prev_station, prev_dir)
+                self.stations[curr_index].arrive_b(
+                    curr_train, prev_station, prev_dir)
             else:
-                self.stations[curr_index].arrive_a(curr_train, prev_station, prev_dir)
+                self.stations[curr_index].arrive_a(
+                    curr_train, prev_station, prev_dir)
 
             # Find the next train to advance
             move = 1 if b_direction else -1
@@ -130,17 +147,22 @@ class Line:
             curr_index, b_direction, step_size=1
         )
         if b_direction is True:
-            self.stations[curr_index].arrive_b(curr_train, prev_station, prev_dir)
+            self.stations[curr_index].arrive_b(
+                curr_train, prev_station, prev_dir)
         else:
-            self.stations[curr_index].arrive_a(curr_train, prev_station, prev_dir)
+            self.stations[curr_index].arrive_a(
+                curr_train, prev_station, prev_dir)
 
     def _next_train(self, start_index=0, b_direction=True, step_size=1):
-        """Given a starting index, finds the next train in either direction"""
+        """
+        Given a starting index, finds the next train in either direction
+        """
         if b_direction is True:
             curr_index = self._next_train_b(start_index, step_size)
 
             if curr_index == -1:
-                curr_index = self._next_train_a(len(self.stations) - 1, step_size)
+                curr_index = self._next_train_a(
+                    len(self.stations) - 1, step_size)
                 b_direction = False
         else:
             curr_index = self._next_train_a(start_index, step_size)
@@ -154,23 +176,30 @@ class Line:
         return self.stations[curr_index].a_train, curr_index, False
 
     def _next_train_b(self, start_index, step_size):
-        """Finds the next train in the b direction, if any"""
+        """
+        Finds the next train in the b direction, if any
+        """
         for i in range(start_index, len(self.stations), step_size):
             if self.stations[i].b_train is not None:
                 return i
         return -1
 
     def _next_train_a(self, start_index, step_size):
-        """Finds the next train in the a direction, if any"""
+        """
+        Finds the next train in the a direction, if any
+        """
         for i in range(start_index, 0, -step_size):
             if self.stations[i].a_train is not None:
                 return i
         return -1
 
     def _get_next_idx(self, curr_index, b_direction, step_size=None):
-        """Calculates the next station index. Returns next index and if it is b direction"""
+        """
+        Calculates the next station index. Returns next index and if it is b direction
+        """
         if step_size is None:
-            step_size = int((self.num_stations * Line.num_directions) / self.num_trains)
+            step_size = int(
+                (self.num_stations * Line.num_directions) / self.num_trains)
         if b_direction is True:
             next_index = curr_index + step_size
             if next_index < self.num_stations:
