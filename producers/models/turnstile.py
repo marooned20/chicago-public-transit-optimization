@@ -28,7 +28,7 @@ class Turnstile(Producer):
         )
 
         # with each unique station_name, a new topic will be created/assigned
-        topic_name = f"com.udacity.{station_name}.turnstile"
+        topic_name = "com.udacity.station.turnstile"
         super().__init__(
             topic_name,
             key_schema=Turnstile.key_schema,
@@ -57,6 +57,6 @@ class Turnstile(Producer):
                 value={
                     "station_id": self.station.station_id,
                     "station_name": self.station.station_name,
-                    "line": self.color.name,
+                    "line": self.station.color.name,
                 },
             )
