@@ -71,32 +71,33 @@ class Weather(Producer):
     def run(self, month):
         self._set_weather(month)
 
-        try:
-            resp = requests.post(
-                url=f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
-                headers={
-                    "Content-Type": "application/vnd.kafka.avro.v2+json"
-                },
-                data={
-                    "key_schema": json.dumps(Weather.key_schema),
-                    "value_schema": json.dumps(Weather.value_schema),
-                    "records": [
-                        {
-                            "key": {
-                                "timestamp": self.time_millis()
-                            },
-                            "value": {
-                                "temperature": self.temp,
-                                "status": self.status.name
-                            }
+        resp = requests.post(
+            url=f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
+            headers={
+                "Content-Type": "application/vnd.kafka.avro.v2+json"
+            },
+            data={
+                "key_schema": json.dumps(Weather.key_schema),
+                "value_schema": json.dumps(Weather.value_schema),
+                "records": [
+                    {
+                        "key": {
+                            "timestamp": self.time_millis()
+                        },
+                        "value": {
+                            "temperature": self.temp,
+                            "status": self.status.name
                         }
-                    ]
-                }
-            )
+                    }
+                ]
+            }
+        )
+        try:
             resp.raise_for_status()
-        except Exception as e:
-            logger.info(f"HTTP failed with {e}")
-
+        except:
+            logger.error(
+                f"HTTP failed with {json.dumps(resp.json(), indent=2)}")
+            exit(1)
 
         logger.debug(
             f"sent weather data to kafka, temp: {self.temp}, status: {self.status.name}")
