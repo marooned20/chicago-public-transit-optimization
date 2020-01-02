@@ -90,6 +90,8 @@ services:
       KSQL_LISTENERS: "http://0.0.0.0:8088"
       KSQL_KSQL_SERVICE_ID: "ksql_service_docker"
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081/"
+      # KSQL_KSQL_SERVER_UI_ENABLED: "true"
+      # KSQL_HOST_NAME: ksql-server
     depends_on:
       - "kafka0"
       - "schema-registry"
@@ -139,25 +141,53 @@ services:
       - ./producers/data/cta_stations.csv:/tmp/cta_stations.csv
       - ./load_stations.sql:/docker-entrypoint-initdb.d/load_stations.sql
 
-  kafkahq:
-    # https://github.com/thatcampbellkid/SAIK2/blob/9bb270447e43ddf483d4bd181102d8853cb760a1/confluent/docker-compose.yml
-    image: tchiotludo/kafkahq
-    hostname: kafkahq
-    container_name: kafkahq
-    depends_on:
-      - kafka0
-      - schema-registry
-    ports:
-      - "8080:8080"
-    environment:
-      PORT: "8080"
-      PROXY: "true"
-      KAFKAHQ_URL: "http://kafkahq:8080"
-      KAFKAHQ_CONFIGURATION: |
-        kafkahq:
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: "kafka0:19092"
-              schema-registry:
-                url: "http://schema-registry:8081"
+  # kafkahq:
+  #   # https://github.com/thatcampbellkid/SAIK2/blob/9bb270447e43ddf483d4bd181102d8853cb760a1/confluent/docker-compose.yml
+  #   image: tchiotludo/kafkahq
+  #   hostname: kafkahq
+  #   container_name: kafkahq
+  #   depends_on:
+  #     - kafka0
+  #     - schema-registry
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     PORT: "8080"
+  #     PROXY: "true"
+  #     KAFKAHQ_URL: "http://kafkahq:8080"
+  #     KAFKAHQ_CONFIGURATION: |
+  #       kafkahq:
+  #         connections:
+  #           docker-kafka-server:
+  #             properties:
+  #               bootstrap.servers: "kafka0:19092"
+  #             schema-registry:
+  #               url: "http://schema-registry:8081"
+
+  # ksqlui:
+  #   image: matsumana/tsujun:0.0.1
+  #   hostname: ksqlui
+  #   container_name: ksqlui
+  #   ports:
+  #     - "28089:8089"
+  #   environment:
+  #     # PORT: "8089"
+  #     # PROXY: "true"
+  #     # KSQL_SERVER: "http://ksql-server:8088"
+  #     KSQL_SERVER: "ksql_service_docker"
+  #   depends_on:
+  #     - "ksql"
+
+  # kafka-manager:
+  #   image: trivadis/kafka-manager
+  #   hostname: kafka-manager
+  #   container_name: kafka-manager
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     PORT: "9000"
+  #     PROXY: "true"
+  #     ZK_HOSTS: "zookeeper:2181"
+  #     APPLICATION_SECRET: "letmein"
+  #   depends_on:
+  #     - zookeeper

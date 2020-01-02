@@ -22,7 +22,7 @@ class Weather(Producer):
         "status", "sunny partly_cloudy cloudy windy precipitation", start=0
     )
 
-    rest_proxy_url = "http://localhost:8082"
+    rest_proxy_url = "http://rest-proxy:8082"
 
     key_schema = None
     value_schema = None

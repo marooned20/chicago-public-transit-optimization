@@ -50,7 +50,7 @@ table = app.Table(
 @app.agent(topic)
 async def process_stream(input_stream):
     async for droplet in input_stream:
-        line = ''  # empty string to maintain str type
+        line = None  # empty string to maintain str type
 
         # assign colors as line names
         if droplet.red:

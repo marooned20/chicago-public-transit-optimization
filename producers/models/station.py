@@ -30,7 +30,7 @@ class Station(Producer):
                         )
 
         # with each unique station_name, a new topic will be created/assigned
-        topic_name = f"com.udacity.{station_name}.arrivals"
+        topic_name = "com.udacity.stations.arrivals"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,

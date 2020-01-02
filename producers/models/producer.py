@@ -9,7 +9,7 @@ from confluent_kafka.avro import AvroProducer
 logger = logging.getLogger(__name__)
 
 # define constants
-BOOTSTRAP_SERVERS = "PLAINTEXT://kafka0:19092"
+BOOTSTRAP_SERVERS = "PLAINTEXT://kafka0:9092"
 SCHEMA_REGISTRY_URL = "http://schema-registry:8081/"
 
 
@@ -56,7 +56,8 @@ class Producer:
         Creates the producer topic if it does not already exist
         """
         # define client
-        client = AdminClient({"bootstrap.servers": BOOTSTRAP_SERVERS})
+        client = AdminClient(
+            {"bootstrap.servers": self.broker_properties["bootstrap.servers"]})
 
         is_topic = self.topic_exists(client, self.topic_name)
 
@@ -64,36 +65,36 @@ class Producer:
             logger.info(
                 f"topic {self.topic_name} exists. Skipping creation...")
             return
-        else:
-            logger.info(f"creating topic: {self.topic_name}")
+        
+        logger.info(f"creating topic: {self.topic_name}")
 
-            futures = client.create_topics(
-                [
-                    NewTopic(
-                        topic=self.topic_name,
-                        num_partitions=self.num_partitions,
-                        replication_factor=self.num_replicas,
-                        # NOTE: config parameters can be added here. e.g. compression type etc
-                    )
-                ]
-            )
+        futures = client.create_topics(
+            [
+                NewTopic(
+                    topic=self.topic_name,
+                    num_partitions=self.num_partitions,
+                    replication_factor=self.num_replicas,
+                    # NOTE: config parameters can be added here. e.g. compression type etc
+                )
+            ]
+        )
 
-            for topic, future in futures.items():
-                try:
-                    future.result()
-                    print("topic created")
-                except Exception as error:
-                    print(f"failed to create topic {self.topic_name}: {error}")
-                    raise
+        for topic, future in futures.items():
+            try:
+                future.result()
+                print("topic created")
+            except Exception as error:
+                print(f"failed to create topic {self.topic_name}: {error}")
+                raise
 
     def topic_exists(self, client, topic_name):
         """
         Checks if the given topic exists
         """
 
-        topic_metadata = client.list_topics(timeout=30)
+        topic_metadata = client.list_topics()
 
-        return topic_metadata.topics.get(topic_name) is not None
+        return topic_name in topic_metadata.topics
 
     def close(self):
         """
