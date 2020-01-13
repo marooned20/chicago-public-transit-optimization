@@ -8,7 +8,7 @@ from pathlib import Path
 
 import requests
 
-from .producer import Producer
+from models.producer import Producer
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class Weather(Producer):
         "status", "sunny partly_cloudy cloudy windy precipitation", start=0
     )
 
-    rest_proxy_url = "http://rest-proxy:8082"
+    rest_proxy_url = "http://localhost:8082"
 
     key_schema = None
     value_schema = None
@@ -31,9 +31,9 @@ class Weather(Producer):
     summer_months = set((6, 7, 8))
 
     def __init__(self, month):
-        topic_name = f"com.udacity.weather"
+        topic_name = "com.udacity.weather"
         super().__init__(
-            topic_name,
+            topic_name=topic_name,
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
             num_partitions=2,  # can go into a separate config file instead of hard-coded
@@ -76,28 +76,22 @@ class Weather(Producer):
             headers={
                 "Content-Type": "application/vnd.kafka.avro.v2+json"
             },
-            data={
+            data=json.dumps({
                 "key_schema": json.dumps(Weather.key_schema),
                 "value_schema": json.dumps(Weather.value_schema),
                 "records": [
                     {
-                        "key": {
-                            "timestamp": self.time_millis()
-                        },
+                        "key": {"timestamp": self.time_millis()},
                         "value": {
                             "temperature": self.temp,
                             "status": self.status.name
                         }
                     }
                 ]
-            }
+            })
         )
-        try:
-            resp.raise_for_status()
-        except:
-            logger.error(
-                f"HTTP failed with {json.dumps(resp.json(), indent=2)}")
-            exit(1)
+
+        resp.raise_for_status()
 
         logger.debug(
             f"sent weather data to kafka, temp: {self.temp}, status: {self.status.name}")

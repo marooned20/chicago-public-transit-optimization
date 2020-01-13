@@ -2,7 +2,7 @@
 import json
 import logging
 
-from .station import Station
+from models import Station
 
 logger = logging.getLogger(__name__)
 
@@ -63,17 +63,17 @@ class Line:
         """
         # TODO: Based on the message topic, call the appropriate handler.
         message_topic = message.topic()
-        if message_topic == "com.udacity.station.turnstile":
+        if message_topic == "com.udacity.faust.stations.transformed.table":
             try:
                 value = json.loads(message.value())
                 self._handle_station(value)
             except Exception as e:
                 logger.fatal(f"bad station? {value}, {e}")
         # Set the conditional to the arrival topic
-        elif message_topic == "arrivals":
+        elif "arrivals" in message.topic():
             self._handle_arrival(message)
         # Set the conditional to the KSQL Turnstile Summary Topic
-        elif message_topic == "TURNSTILE_SUMMARY":
+        elif "TURNSTILE_SUMMARY" in message.topic():
             json_data = json.loads(message.value())
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)

@@ -9,8 +9,8 @@ from confluent_kafka.avro import AvroProducer
 logger = logging.getLogger(__name__)
 
 # define constants
-BOOTSTRAP_SERVERS = "PLAINTEXT://kafka0:9092"
-SCHEMA_REGISTRY_URL = "http://schema-registry:8081/"
+BOOTSTRAP_SERVERS = "PLAINTEXT://localhost:9092"
+SCHEMA_REGISTRY_URL = "http://localhost:8081"
 
 
 class Producer:
@@ -59,22 +59,17 @@ class Producer:
         client = AdminClient(
             {"bootstrap.servers": self.broker_properties["bootstrap.servers"]})
 
-        is_topic = self.topic_exists(client, self.topic_name)
-
-        if is_topic:
-            logger.info(
-                f"topic {self.topic_name} exists. Skipping creation...")
+        topic_metadata = client.list_topics(timeout=5)
+        if self.topic_name in set(
+            t.topic for t in iter(topic_metadata.topics.values())):
             return
-        
-        logger.info(f"creating topic: {self.topic_name}")
-
+            
         futures = client.create_topics(
             [
                 NewTopic(
                     topic=self.topic_name,
                     num_partitions=self.num_partitions,
                     replication_factor=self.num_replicas,
-                    # NOTE: config parameters can be added here. e.g. compression type etc
                 )
             ]
         )
@@ -82,9 +77,9 @@ class Producer:
         for topic, future in futures.items():
             try:
                 future.result()
-                print("topic created")
+                logger.info("topic created")
             except Exception as error:
-                print(f"failed to create topic {self.topic_name}: {error}")
+                logger.info(f"failed to create topic {self.topic_name}: {error}")
                 raise
 
     def topic_exists(self, client, topic_name):
@@ -101,12 +96,9 @@ class Producer:
         Prepares the producer for exit by cleaning up the producer
         """
 
-        if self.producer is None:
-            logger.debug(f"producer is None, no need to flush")
-            return
-
-        logger.debug("Flush the producer")
-        self.producer.flush()
+        if self.producer is not None:
+            logger.debug("Cleaning up the producer!")
+            self.producer.flush()
 
     def time_millis(self):
         """

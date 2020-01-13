@@ -9,7 +9,7 @@ from tornado import gen
 
 logger = logging.getLogger(__name__)
 
-KAFKA_BROKER_URL = "PLAINTEXT://kafka0:9092"
+KAFKA_BROKER_URL = "PLAINTEXT://localhost:9092"
 
 
 class KafkaConsumer:
@@ -56,7 +56,7 @@ class KafkaConsumer:
         # the beginning or earliest
 
         for partition in partitions:
-            if self.offset_earliest:
+            if self.offset_earliest == True:
                 partition.offset = OFFSET_BEGINNING
 
         logger.info(f"partitions assigned for {self.topic_name_pattern}")
@@ -87,11 +87,11 @@ class KafkaConsumer:
         elif message.error() is not None:
             logger.error(f"Error from consumer: {message.error()}")
             return 0
-        else:
-            self.message_handler(message)
-            logger.info(
-                f"Consumed message - {message.key()}: {message.value()}")
-            return 1
+        
+        self.message_handler(message)
+        logger.info(
+            f"Consumed message - {message.key()}: {message.value()}")
+        return 1
 
     def close(self):
         """

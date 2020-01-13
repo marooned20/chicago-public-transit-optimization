@@ -4,8 +4,8 @@ from pathlib import Path
 
 from confluent_kafka import avro
 
-from .turnstile import Turnstile
-from .producer import Producer
+from models.turnstile import Turnstile
+from models.producer import Producer
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +30,9 @@ class Station(Producer):
                         )
 
         # with each unique station_name, a new topic will be created/assigned
-        topic_name = "com.udacity.stations.arrivals"
+        topic_name = f"com.udacity.stations.{station_name}.arrivals"
         super().__init__(
-            topic_name,
+            topic_name=topic_name,
             key_schema=Station.key_schema,
             value_schema=Station.value_schema,
             num_partitions=5,  # can go into a separate config file instead of hard-coded
@@ -62,7 +62,7 @@ class Station(Producer):
                 "train_id": train.train_id,
                 "direction": direction,
                 "line": self.color.name,
-                "train_status": train.status,
+                "train_status": train.status.name,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction
             },

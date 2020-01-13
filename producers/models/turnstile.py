@@ -4,8 +4,8 @@ from pathlib import Path
 
 from confluent_kafka import avro
 
-from .producer import Producer
-from .turnstile_hardware import TurnstileHardware
+from models.producer import Producer
+from models.turnstile_hardware import TurnstileHardware
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class Turnstile(Producer):
         # with each unique station_name, a new topic will be created/assigned
         topic_name = "com.udacity.station.turnstile"
         super().__init__(
-            topic_name,
+            topic_name=topic_name,
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
             num_partitions=5,  # can go into a separate config file instead of hard-coded
@@ -56,7 +56,7 @@ class Turnstile(Producer):
                 key={"timestamp": self.time_millis()},
                 value={
                     "station_id": self.station.station_id,
-                    "station_name": self.station.station_name,
+                    "station_name": self.station.name,
                     "line": self.station.color.name,
                 },
             )

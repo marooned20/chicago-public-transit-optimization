@@ -7,12 +7,14 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-KAFKA_CONNECT_URL = "http://kafka-connect:8083/connectors"
+KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
 CONNECTOR_NAME = "stations"
 
 
 def configure_connector():
-    """Starts and configures the Kafka Connect connector"""
+    """
+    Starts and configures the Kafka Connect connector
+    """
     logging.debug("creating or updating kafka connect connector...")
 
     resp = requests.get(f"{KAFKA_CONNECT_URL}/{CONNECTOR_NAME}")
@@ -39,7 +41,7 @@ def configure_connector():
                     "table.whitelist": CONNECTOR_NAME,
                     "mode": "incrementing",
                     "incrementing.column.name": "stop_id",
-                    "topic.prefix": "jdbc-source-psql.",
+                    "topic.prefix": "jdbc.source.psql.",
                     "poll.interval.ms": 900000  # 15 minutes
                 },
             }
@@ -47,14 +49,9 @@ def configure_connector():
     )
 
     # Ensure a healthy response was given
-    try:
-        resp.raise_for_status()
-    except:
-        logger.error(
-            f"failed creating connector: {json.dumps(resp.json(), indent=2)}")
-        exit(1)
+    resp.raise_for_status()
 
-    logger.info(f"connector {CONNECTOR_NAME} created successfully")
+    logger.info(f"connector: {CONNECTOR_NAME} created successfully")
     logger.info("Use kafka-connect-UI and kafka-topics-UI to see data!")
 
 
