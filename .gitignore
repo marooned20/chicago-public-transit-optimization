@@ -1,5 +1,6 @@
 .vscode/
 *run_this.sh
+*2.py
 
 # venv
 venv/
